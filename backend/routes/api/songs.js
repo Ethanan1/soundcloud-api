@@ -8,23 +8,30 @@ const { handleValidationErrors } = require('../../utils/validation');
 
 
 const validateGetAllSongs = [
-    query('createdAt')
-      .optional()
-      .isISO8601()
-      .toDate()
-      .withMessage('CreatedAt is invalid'),
-    query('page')
-      .toInt()
-      .customSanitizer(value => value || 0)
-      .custom(value => value >= 0 && value <= 10)
-      .withMessage('Page must be greater than or equal to 0'),
-    query('size')
-      .toInt()
-      .customSanitizer(value => value || 20)
-      .custom(value => value >= 0 && value <= 20)
-      .withMessage('Size must be greater than or equal to 0'),
+    check('size')
+        .custom(async (value, { req }) => {
+            if (req.query) {
+                const { size } = req.query
+                if (size < 0) {
+                    return await Promise.reject("Size must be greater than or equal to 0")
+                }
+            }
+        }),
+    check('page')
+        .custom(async (value, { req }) => {
+            if (req.query) {
+                const { page } = req.query
+                if (page < 0) {
+                    return await Promise.reject("Page must be greater than or equal to 0")
+                }
+            }
+        }),
+    check('createdAt')
+        .isDate({ dateOnly: false })
+        .optional({ nullable: true })
+        .withMessage("createdAt is invalid"),
     handleValidationErrors
-  ]
+];
 
 const validateSong = [
     check('title')
@@ -47,26 +54,33 @@ const validateComment = [
 
 
 //get all songs
-router.get('/', validateGetAllSongs, async (req, res) => {
-      const { title, createdAt, page, size } = req.query
-      const filter = {}
-      if (title) {
-        filter['title'] = title
-      }
-      if (createdAt) {
-        filter['createdAt'] = createdAt
-      }
-      return res.json({
-        Songs: await Song.findAll({
-          where: filter,
-          limit: size,
-          offset: page * size,
-        }),
-        page,
-        size,
-      })
+router.get('/', validateQuery, async (req, res) => {
+    const songObj = req.query;
+    let { page, size } = songObj;
+    page = Number.parseInt(page)
+    size = Number.parseInt(size)
+
+    if (Number.isNaN(page)) page = 1;
+    if (Number.isNaN(size)) size = 10;
+    const pagination = {};
+    if (page === 0) {
+        limit = null;
+        offset = null;
+    } else {
+        pagination.limit = size;
+        pagination.offset = size * (page - 1)
     }
-  );
+
+    const songs = await Song.findAll({
+        ...pagination
+    });
+
+    res.json({
+        songs,
+        page,
+        size
+    });
+});
 
 
 //create a song based on albumId
