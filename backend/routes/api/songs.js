@@ -54,7 +54,7 @@ const validateComment = [
 
 
 //get all songs
-router.get('/', validateQuery, async (req, res) => {
+router.get('/', validateGetAllSongs, async (req, res) => {
     const songObj = req.query;
     let { page, size } = songObj;
     page = Number.parseInt(page)
