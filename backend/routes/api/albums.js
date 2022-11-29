@@ -86,7 +86,7 @@ router.put('/:albumId', requireAuth, validateAlbum, async (req, res, next) => {
 })
 
 //delete an album
-router.delete('/:albumId', requireAuth, async (req, res) => {
+router.delete('/:albumId', requireAuth, async (req, res, next) => {
     const userId = req.user.id;
     const album = await Album.findByPk(req.params.albumId);
 
@@ -97,10 +97,15 @@ router.delete('/:albumId', requireAuth, async (req, res) => {
                 return next(err);
         }
         await album.destroy();
+        res.json({
+            Message: "Successfully deleted"
+        });
+    } else {
+        const e = new Error('No album found')
+        e.status = 404;
+        return next(e);
     }
-    res.json({
-        Message: "Successfully deleted"
-    });
+
 })
 
 

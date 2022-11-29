@@ -128,10 +128,15 @@ router.delete('/:playlistId', requireAuth, restoreUser, async (req, res, next) =
                     return next(err);
             }
             await playlist.destroy();
+            res.json({
+                Message: "Successfully deleted"
+            });
         }
-        res.json({
-            Message: "Successfully deleted"
-        });
+        else {
+            const e = new Error('No album found')
+            e.status = 404;
+            return next(e);
+        }
     })
 
 
