@@ -98,9 +98,9 @@ router.delete('/:albumId', requireAuth, async (req, res) => {
         }
         await album.destroy();
     }
-
-    await album.save();
-    res.json(album);
+    res.json({
+        Message: "Successfully deleted"
+    });
 })
 
 

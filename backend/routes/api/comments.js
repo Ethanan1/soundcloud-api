@@ -48,8 +48,9 @@ router.delete('/:userId', requireAuth, async (req, res, next) => {
         e.status = 404;
         return next(e);
     }
-    await comment.save();
-    res.json(comment);
+    res.json({
+        Message: "Successfully deleted"
+    });
 })
 
 

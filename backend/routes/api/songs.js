@@ -204,7 +204,7 @@ router.get('/:songId/comments', async (req, res, next) => {
        { include: [ { model: User }]
     });
 
-    if (comment) {
+    if (comment.length > 0) {
       return res.json({"Comments": comment})
     } else {
         const e = new Error('No song found');
@@ -227,8 +227,9 @@ router.delete('/:songId', requireAuth, async (req, res, next) => {
             }
             await song.destroy();
         }
-        await song.save();
-        res.json(song);
+        res.json({
+            Message: "Successfully deleted"
+        });
     })
 
 

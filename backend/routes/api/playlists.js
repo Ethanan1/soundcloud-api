@@ -129,8 +129,9 @@ router.delete('/:playlistId', requireAuth, restoreUser, async (req, res, next) =
             }
             await playlist.destroy();
         }
-        await playlist.save();
-        res.json(playlist);
+        res.json({
+            Message: "Successfully deleted"
+        });
     })
 
 
