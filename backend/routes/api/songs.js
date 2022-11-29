@@ -54,10 +54,7 @@ const validateComment = [
 
 
 //get all songs
-router.get(
-    '/',
-    validateGetAllSongs,
-    async (req, res) => {
+router.get('/', validateGetAllSongs, async (req, res) => {
       const { title, createdAt, page, size } = req.query
       const filter = {}
       if (title) {
