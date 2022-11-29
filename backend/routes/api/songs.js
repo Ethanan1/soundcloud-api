@@ -70,7 +70,6 @@ router.get('/', validateGetAllSongs, async (req, res) => {
         pagination.limit = size;
         pagination.offset = size * (page - 1)
     }
-
     const songs = await Song.findAll({
         ...pagination
     });
@@ -171,8 +170,7 @@ router.put('/:songId', requireAuth, validateSong, async (req, res, next) => {
         song.title = title;
         song.description = description;
         song.url = url;
-        song.imageUrl = imageUrl;
-        song.albumId = albumId;
+        song.previewImage = imageUrl;
 
         await song.save(); // changes made in lines
         res.json(song); // return
