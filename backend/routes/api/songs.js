@@ -29,7 +29,7 @@ const validateGetAllSongs = [
     check('createdAt')
         .isDate({ dateOnly: false })
         .optional({ nullable: true })
-        .withMessage("CreatedAt is invalid"),
+        .withMessage("createdAt is invalid"),
     handleValidationErrors
 ];
 
@@ -54,37 +54,29 @@ const validateComment = [
 
 
 //get all songs
-router.get('/', validateGetAllSongs, async (req, res) => {
-    const { title, page, size } = req.query;
-    page = Number.parseInt(page)
-    size = Number.parseInt(size)
-
-    if (Number.isNaN(page)) {
-        page = 1;
-    }
-    if (Number.isNaN(size)) {
-        size = 10;
-    }
-    const pagination = {};
-
-    if (page !== 0) {
-        pagination.limit = size;
-        pagination.offset = size * (page - 1)
-    } else {
-        limit = null;
-        offset = null;
-    }
-
-    const songs = await Song.findAll({
-        ...pagination
-    });
-
-    res.json({
-        songs,
+router.get(
+    '/',
+    validateGetAllSongs,
+    async (req, res) => {
+      const { title, createdAt, page, size } = req.query
+      const filter = {}
+      if (title) {
+        filter['title'] = title
+      }
+      if (createdAt) {
+        filter['createdAt'] = createdAt
+      }
+      return res.json({
+        Songs: await Song.findAll({
+          where: filter,
+          limit: size,
+          offset: page * size,
+        }),
         page,
         size,
-    });
-});
+      })
+    }
+  );
 
 
 //create a song based on albumId
