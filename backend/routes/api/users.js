@@ -49,7 +49,7 @@ router.post('/', validateSignup, async (req, res, next) => {
 
 
 //get details of an artist by id
-router.get('/:userId', async (req, res) => {
+router.get('/:userId', async (req, res, next) => {
   const { userId } = req.params
   const songs = await Song.findAll({
     where: { userId },
@@ -76,7 +76,7 @@ router.get('/:userId', async (req, res) => {
 });
 
 //get all songs of an artist by id
-router.get('/:userId/songs', async (req, res) => {
+router.get('/:userId/songs', async (req, res, next) => {
     const { userId } = req.params
     const user = await User.findByPk(userId)
     if (!user) {

@@ -198,7 +198,7 @@ router.post('/:songId/comments', validateComment, async (req, res, next) => {
 });
 
 //get comments by songId
-router.get('/:songId/comments', async (req, res) => {
+router.get('/:songId/comments', async (req, res, next) => {
     const {songId} = req.params
     const comment = await Comment.scope([{method: ['songScopeComment', songId]}]).findAll(
        { include: [ { model: User }]
@@ -206,6 +206,10 @@ router.get('/:songId/comments', async (req, res) => {
 
     if (comment) {
       return res.json({"Comments": comment})
+    } else {
+        const e = new Error('No song found');
+        e.status = 404;
+        return next(e);
     }
   });
 
@@ -215,12 +219,12 @@ router.delete('/:songId', requireAuth, async (req, res, next) => {
         const userId = req.user.id;
         const song = await Song.findByPk(req.params.songId);
 
-        if (userId !== song.userId) {
-            const err = new Error("You don't own this song");
-                err.status = 403;
-                return next(err);
-        }
         if (song) {
+            if (userId !== song.userId) {
+                const err = new Error("You don't own this song");
+                    err.status = 403;
+                    return next(err);
+            }
             await song.destroy();
         }
         await song.save();

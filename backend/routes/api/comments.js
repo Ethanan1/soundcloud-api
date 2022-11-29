@@ -36,16 +36,18 @@ router.delete('/:userId', requireAuth, async (req, res, next) => {
     const userId = req.user.id;
     const comment = await Comment.findByPk(req.params.userId);
 
-    if (userId !== comment.userId) {
-        const err = new Error("You don't own this comment");
-            err.status = 403;
-            return next(err);
-    }
-
     if (comment) {
+        if (userId !== comment.userId) {
+            const err = new Error("You don't own this comment");
+                err.status = 403;
+                return next(err);
+        }
         await comment.destroy();
+    } else {
+        const e = new Error("No comment")
+        e.status = 404;
+        return next(e);
     }
-
     await comment.save();
     res.json(comment);
 })

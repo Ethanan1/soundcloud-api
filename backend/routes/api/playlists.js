@@ -121,12 +121,12 @@ router.delete('/:playlistId', requireAuth, restoreUser, async (req, res, next) =
         const { playlistId } = req.params;
         const playlist = await Playlist.findByPk(playlistId);
 
-        if (userId !== playlist.userId) {
-            const err = new Error("You don't own this song");
-                err.status = 403;
-                return next(err);
-        }
         if (playlist) {
+            if (userId !== playlist.userId) {
+                const err = new Error("You don't own this song");
+                    err.status = 403;
+                    return next(err);
+            }
             await playlist.destroy();
         }
         await playlist.save();

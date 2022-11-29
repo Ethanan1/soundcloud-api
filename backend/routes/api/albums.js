@@ -90,13 +90,12 @@ router.delete('/:albumId', requireAuth, async (req, res) => {
     const userId = req.user.id;
     const album = await Album.findByPk(req.params.albumId);
 
-    if (userId !== album.userId) {
-        const err = new Error("You don't own this album");
-            err.status = 403;
-            return next(err);
-    }
-
     if (album) {
+        if (userId !== album.userId) {
+            const err = new Error("You don't own this album");
+                err.status = 403;
+                return next(err);
+        }
         await album.destroy();
     }
 
