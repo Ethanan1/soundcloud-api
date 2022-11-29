@@ -8,30 +8,23 @@ const { handleValidationErrors } = require('../../utils/validation');
 
 
 const validateGetAllSongs = [
-    check('size')
-        .custom(async (value, { req }) => {
-            if (req.query) {
-                const { size } = req.query
-                if (size < 0) {
-                    return await Promise.reject("Size must be greater than or equal to 0")
-                }
-            }
-        }),
-    check('page')
-        .custom(async (value, { req }) => {
-            if (req.query) {
-                const { page } = req.query
-                if (page < 0) {
-                    return await Promise.reject("Page must be greater than or equal to 0")
-                }
-            }
-        }),
-    check('createdAt')
-        .isDate({ dateOnly: false })
-        .optional({ nullable: true })
-        .withMessage("createdAt is invalid"),
+    query('createdAt')
+      .optional()
+      .isISO8601()
+      .toDate()
+      .withMessage('CreatedAt is invalid'),
+    query('page')
+      .toInt()
+      .customSanitizer(value => value || 0)
+      .custom(value => value >= 0 && value <= 10)
+      .withMessage('Page must be greater than or equal to 0'),
+    query('size')
+      .toInt()
+      .customSanitizer(value => value || 20)
+      .custom(value => value >= 0 && value <= 20)
+      .withMessage('Size must be greater than or equal to 0'),
     handleValidationErrors
-];
+  ]
 
 const validateSong = [
     check('title')
